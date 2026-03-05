@@ -1,3 +1,7 @@
+%% Artigo estilo IEEE — Banco de Dados de Alunos
+%% Compatível com pdfLaTeX (padrão do Overleaf)
+%% Compilar com: pdflatex artigo_ordenacao.tex (duas vezes)
+
 \documentclass[10pt,a4paper]{article}
 
 % ── Layout dois colunas estilo IEEE ─────────────────────────────────
@@ -289,6 +293,31 @@ Quick Sort     & $O(n\log n)$ & $O(n\log n)$ & $O(n^{2})$   \\
 \EndIf
 \end{algorithmic}
 \end{algorithm}
+
+\subsection{Por que Merge Sort é o Algoritmo Ideal}
+
+O \textit{Merge Sort} opera pelo paradigma \textbf{dividir para conquistar}:
+divide recursivamente o vetor ao meio até obter subvetores unitários e,
+em seguida, funde os subvetores em ordem crescente na etapa
+\textsc{Merge}~\cite{cormen2022}. Cada nível de recursão processa $n$
+elementos no total, e há $\log n$ níveis, resultando em complexidade
+$O(n \log n)$ \textbf{garantida em todos os casos} --- melhor, médio e pior.
+
+Essa garantia o distingue fundamentalmente do \textit{Quick Sort}, que
+também é $O(n \log n)$ no caso médio mas degrada para $O(n^{2})$ quando
+o pivô escolhido é consistentemente o menor ou o maior elemento,
+exatamente o que ocorre na entrada inversamente ordenada~\cite{sedgewick2011}.
+
+Além da complexidade, o \textit{Merge Sort} é \textbf{estável}: elementos
+com chaves iguais mantêm sua ordem relativa original após a ordenação.
+Essa propriedade é fundamental em um banco de dados de alunos, onde pode
+ser necessário ordenar por múltiplos critérios (e.g., primeiro por curso,
+depois por \texttt{gpa}) sem perder a ordem anterior~\cite{knuth1998}.
+
+Por fim, sua \textbf{previsibilidade} é uma vantagem prática: o tempo de
+execução varia apenas entre $1{,}4$~ms e $2{,}9$~ms para $N = 10{.}000$
+independentemente do tipo de entrada, tornando-o adequado para ambientes
+de produção onde o pior caso precisa ser controlado.
 
 \section{Metodologia Experimental e Resultados}
 \label{sec:resultados}
