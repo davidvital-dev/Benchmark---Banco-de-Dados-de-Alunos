@@ -1,0 +1,511 @@
+\documentclass[10pt,a4paper]{article}
+
+% ── Layout dois colunas estilo IEEE ─────────────────────────────────
+\usepackage[top=19mm,bottom=25mm,left=14.3mm,right=14.3mm,columnsep=5mm]{geometry}
+\usepackage{multicol}
+
+% ── Encoding e fonte (pdfLaTeX) ──────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% ── Pacotes ──────────────────────────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{abstract}
+\usepackage{float}
+\usepackage{enumitem}
+
+% ── Titulos estilo IEEE ──────────────────────────────────────────────
+\titleformat{\section}[block]
+  {\normalfont\normalsize\bfseries\scshape\centering}{\Roman{section}.}{0.5em}{}
+\titleformat{\subsection}[block]
+  {\normalfont\small\bfseries\itshape}{\Alph{subsection}.}{0.5em}{}
+\titleformat{\subsubsection}[runin]
+  {\normalfont\small\itshape}{\arabic{subsubsection})}{0.5em}{}[:]
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titlespacing*{\subsection}{0pt}{6pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{4pt}{4pt}
+
+% ── Abstract ─────────────────────────────────────────────────────────
+\renewcommand{\abstractnamefont}{\normalfont\bfseries}
+\renewcommand{\abstracttextfont}{\normalfont\small}
+\setlength{\absleftindent}{0pt}
+\setlength{\absrightindent}{0pt}
+
+% ── Captions ─────────────────────────────────────────────────────────
+\captionsetup{font=small,labelfont=bf,justification=centering,skip=4pt}
+
+% ── Listings ─────────────────────────────────────────────────────────
+\lstset{
+  basicstyle=\scriptsize\ttfamily,
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{gray!80},
+  numbers=left, numberstyle=\tiny\color{gray},
+  stepnumber=1, numbersep=4pt,
+  breaklines=true, frame=single,
+  captionpos=b, language=C,
+  aboveskip=4pt, belowskip=4pt,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {â}{{\^a}}1 {ê}{{\^e}}1 {ô}{{\^o}}1
+    {ã}{{\~a}}1 {õ}{{\~o}}1
+    {ç}{{\c c}}1 {Ç}{{\c C}}1
+}
+
+% ── Algoritmos ────────────────────────────────────────────────────────
+\algrenewcommand\algorithmicwhile{\textbf{enquanto}}
+\algrenewcommand\algorithmicdo{\textbf{faça}}
+\algrenewcommand\algorithmicend{\textbf{fim}}
+\algrenewcommand\algorithmicif{\textbf{se}}
+\algrenewcommand\algorithmicthen{\textbf{então}}
+\algrenewcommand\algorithmicelse{\textbf{senão}}
+\algrenewcommand\algorithmicfor{\textbf{para}}
+\algrenewcommand\algorithmicreturn{\textbf{retorne}}
+
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
+\pagestyle{plain}
+
+% ═════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Cabeçalho ─────────────────────────────────────────────────────────
+\begin{center}
+  {\small\scshape Universidade Federal do Cariri (UFCA) ---
+  Disciplina de Estruturas de Dados ---
+  Engenharia de Software, 2026}\\[2pt]
+  {\small Prof.\ Weskley Vinícius Fernandes Mauricio}
+\end{center}
+\vspace{2pt}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{6pt}
+
+% ── Título ────────────────────────────────────────────────────────────
+\begin{center}
+  {\Large\bfseries Análise de Desempenho de Algoritmos de Ordenação\\
+   Aplicados a um Banco de Dados de Alunos:\\[2pt]
+   Uma Comparação Empírica em Listas Dinâmica e Estática}\\[10pt]
+
+  {\normalsize
+   David Josué Vital Santos,\;
+   Ângelo Gabriel Alves Freire Duarte,\\
+   Jetro Kepler G. A. G. Viana,\;
+   José Luiz de Lima Mendes\;e\;
+   Dorian Dayvid Gomes Feitosa}\\[4pt]
+
+  {\small\itshape
+   Universidade Federal do Cariri (UFCA), Juazeiro do Norte, CE, Brasil\\
+   Curso de Engenharia de Software}\\[8pt]
+\end{center}
+
+% ── Resumo ────────────────────────────────────────────────────────────
+\begin{abstract}
+\noindent
+Este artigo apresenta a análise comparativa de cinco algoritmos clássicos de
+ordenação --- \textit{Bubble Sort}, \textit{Insertion Sort}, \textit{Selection Sort},
+\textit{Quick Sort} e \textit{Merge Sort} --- aplicados a um banco de dados de alunos
+implementado sobre lista encadeada dinâmica e lista encadeada estática. A avaliação
+considera três volumes ($N = 100$, $1{.}000$ e $10{.}000$) e três cenários de entrada
+(aleatório, parcialmente ordenado e inversamente ordenado), com 100 repetições por
+experimento. Os resultados empíricos confirmam as complexidades teóricas e evidenciam
+o \textit{Merge Sort} como algoritmo de escolha, com tempo entre $1{,}4$~ms e $2{,}9$~ms
+para $N = 10{.}000$ independentemente do tipo de entrada. A lista estática apresentou
+ganhos de até \textbf{89\%} em relação à dinâmica para algoritmos $O(n^{2})$
+em entradas grandes.
+
+\medskip
+\noindent\textbf{Palavras-chave:} ordenação, algoritmos, estruturas de dados,
+lista encadeada, análise de desempenho, linguagem~C.
+\end{abstract}
+
+\vspace{6pt}\noindent\rule{\linewidth}{0.5pt}\vspace{2pt}
+
+% ── Corpo em duas colunas ─────────────────────────────────────────────
+\begin{multicols}{2}
+
+\section{Introdução}
+\label{sec:intro}
+
+A gestão eficiente de registros acadêmicos é uma necessidade central em
+sistemas de informação universitários. Operações como listar alunos por
+desempenho, filtrar registros por curso ou ordenar por coeficiente acadêmico
+exigem algoritmos que se comportem adequadamente tanto para pequenas turmas
+quanto para grandes bases com dezenas de milhares de registros.
+
+A escolha equivocada de um algoritmo de ordenação pode transformar uma
+operação de milissegundos em uma rotina de vários segundos, comprometendo
+a experiência do usuário e a escalabilidade do sistema~\cite{cormen2022}.
+Algoritmos de complexidade $O(n^{2})$ tornam-se impraticáveis à medida que
+$n$ cresce, conforme formalizado pela análise assintótica de Knuth~\cite{knuth1998}.
+
+Este trabalho propõe um banco de dados de alunos como objeto de estudo.
+O banco pode crescer ou encolher dinamicamente à medida que alunos ingressam
+ou se formam, justificando o uso de listas encadeadas como estrutura de
+armazenamento~\cite{ziviani2010}.
+
+O objetivo é identificar o algoritmo mais adequado para essa aplicação,
+fundamentando a escolha em análise teórica de complexidade~\cite{sedgewick2011}
+e em experimentos empíricos com entradas sintéticas cobrindo o pior, médio
+e melhor caso.
+
+\section{Fundamentação Teórica e Implementação}
+\label{sec:dev}
+
+\subsection{Estruturas de Dados}
+
+\subsubsection{Struct Student}
+A entidade central do sistema é o registro \texttt{Student}, com os campos:
+\texttt{id} (matrícula inteira), \texttt{name} (nome, até 80 caracteres),
+\texttt{gpa} (Coeficiente de Rendimento Acadêmico, \texttt{float} de 0 a 10),
+\texttt{age} (idade, \texttt{int}) e \texttt{course} (curso, até 50 caracteres).
+Os experimentos de ordenação utilizam o critério \texttt{SORT\_BY\_GPA},
+ordenando os alunos pelo coeficiente acadêmico em ordem crescente.
+
+\subsubsection{Lista Encadeada Dinâmica}
+Implementada como lista \textbf{duplamente encadeada} --- cada nó
+(\texttt{DNode}) possui ponteiros \texttt{prev} e \texttt{next} --- gerenciada
+por um ponteiro \texttt{head} para o primeiro elemento~\cite{cormen2022}.
+A inserção no início é $O(1)$; a inserção no final percorre toda a lista,
+sendo $O(n)$. Busca e remoção são igualmente $O(n)$ no pior caso.
+
+Os algoritmos de ordenação operam \textbf{diretamente sobre os nós} da lista,
+trocando os dados (\texttt{Student}) entre nós sem conversão para vetor auxiliar.
+Essa abordagem evita a alocação de memória extra, mas implica padrão de acesso
+sequencial não-contíguo em memória.
+
+\subsubsection{Lista Encadeada Estática}
+Utiliza um vetor pré-alocado de \texttt{SLIST\_MAX\_SIZE = 12.000} nós com
+lista de slots livres (\textit{free list}), eliminando chamadas a
+\texttt{malloc}/\texttt{free} em tempo de execução~\cite{preiss1998}.
+A lista é \textbf{simplesmente encadeada} (apenas ponteiro \texttt{next}).
+O gerenciamento de slots é $O(1)$.
+
+Para a ordenação, a lista estática exporta seus dados para um vetor auxiliar
+e aplica o algoritmo diretamente sobre o vetor, aproveitando a localidade
+de cache da memória contígua~\cite{preiss1998}.
+
+\subsection{Algoritmos de Ordenação}
+
+Todos os algoritmos mantêm um \textbf{contador de comparações} incrementado
+a cada operação de comparação entre elementos, permitindo medir o custo
+computacional independentemente do hardware. A Tabela~\ref{tab:complexidade}
+resume as complexidades teóricas~\cite{knuth1998}.
+
+\begin{table}[H]
+\caption{Complexidade teórica dos algoritmos}
+\label{tab:complexidade}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Algoritmo} & \textbf{Melhor} & \textbf{Médio} & \textbf{Pior} \\
+\midrule
+Bubble Sort    & $O(n^{2})$   & $O(n^{2})$   & $O(n^{2})$   \\
+Insertion Sort & $O(n)$       & $O(n^{2})$   & $O(n^{2})$   \\
+Selection Sort & $O(n^{2})$   & $O(n^{2})$   & $O(n^{2})$   \\
+Quick Sort     & $O(n\log n)$ & $O(n\log n)$ & $O(n^{2})$   \\
+\textbf{Merge Sort} & $\mathbf{O(n\log n)}$ & $\mathbf{O(n\log n)}$ & $\mathbf{O(n\log n)}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Pseudocódigos dos Algoritmos}
+
+\subsubsection{Bubble Sort}
+\begin{algorithm}[H]
+\caption{BubbleSort$(V, n)$}
+\begin{algorithmic}[1]
+\For{$i \gets 0$ \textbf{até} $n-2$}
+  \For{$j \gets 0$ \textbf{até} $n-2-i$}
+    \If{$V[j] > V[j+1]$}
+      \State troca($V[j]$, $V[j+1]$)
+    \EndIf
+  \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Insertion Sort}
+\begin{algorithm}[H]
+\caption{InsertionSort$(V, n)$}
+\begin{algorithmic}[1]
+\For{$i \gets 1$ \textbf{até} $n-1$}
+  \State $chave \gets V[i]$;\; $j \gets i-1$
+  \While{$j \geq 0$ \textbf{e} $V[j] > chave$}
+    \State $V[j+1] \gets V[j]$;\; $j \gets j-1$
+  \EndWhile
+  \State $V[j+1] \gets chave$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Selection Sort}
+\begin{algorithm}[H]
+\caption{SelectionSort$(V, n)$}
+\begin{algorithmic}[1]
+\For{$i \gets 0$ \textbf{até} $n-2$}
+  \State $min \gets i$
+  \For{$j \gets i+1$ \textbf{até} $n-1$}
+    \If{$V[j] < V[min]$} $min \gets j$ \EndIf
+  \EndFor
+  \State troca($V[i]$, $V[min]$)
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Quick Sort}
+\begin{algorithm}[H]
+\caption{QuickSort$(V, lo, hi)$}
+\begin{algorithmic}[1]
+\If{$lo < hi$}
+  \State $p \gets$ Particiona$(V, lo, hi)$
+  \State QuickSort$(V, lo, p-1)$
+  \State QuickSort$(V, p+1, hi)$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Merge Sort --- Algoritmo Escolhido}
+\begin{algorithm}[H]
+\caption{MergeSort$(V, lo, hi)$}
+\begin{algorithmic}[1]
+\If{$lo < hi$}
+  \State $mid \gets lo + (hi-lo)/2$
+  \State MergeSort$(V, lo, mid)$
+  \State MergeSort$(V, mid+1, hi)$
+  \State Merge$(V, lo, mid, hi)$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\section{Metodologia Experimental e Resultados}
+\label{sec:resultados}
+
+\subsection{Metodologia}
+
+Os experimentos foram conduzidos com compilador GCC, medindo o tempo de
+execução com \texttt{clock\_gettime(CLOCK\_MONOTONIC)} de resolução em
+nanossegundos. Cada experimento foi repetido \textbf{100 vezes}
+(\texttt{BENCH\_RUNS = 100}), reportando a média aritmética.
+
+A medição do tempo abrange exclusivamente a etapa de ordenação:
+para a \textbf{lista dinâmica}, mede-se o tempo da função
+\texttt{dlist\_*\_sort()} que opera diretamente nos nós; para a
+\textbf{lista estática}, mede-se o tempo da função \texttt{arr\_*\_sort()}
+aplicada sobre o vetor auxiliar exportado da lista.
+
+Os tipos de entrada simulados foram:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+  \item \textbf{Aleatório} (\texttt{INPUT\_RANDOM}): dados gerados com \texttt{rand()};
+  \item \textbf{Parcialmente Ordenado} (\texttt{INPUT\_SORTED}): dados com ordenação parcial;
+  \item \textbf{Inversamente Ordenado} (\texttt{INPUT\_REVERSE}): pior caso para
+        algoritmos sensíveis à entrada.
+\end{itemize}
+
+\subsection{Resultados Empíricos}
+
+A Tabela~\ref{tab:resultados} apresenta os tempos médios para $N = 10{.}000$
+na lista dinâmica, ordenando pelo campo \texttt{gpa} (CRA).
+
+\begin{table}[H]
+\caption{Tempo médio (ms) --- $N = 10{.}000$, Lista Dinâmica}
+\label{tab:resultados}
+\centering
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{2pt}
+\footnotesize
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Algoritmo} & \textbf{Aleat.} & \textbf{Parc.Ord.} & \textbf{Inv.Ord.} \\
+\midrule
+Bubble Sort         & 1059,8 &  947,9 &  917,3 \\
+Insertion Sort      &  899,6 &  471,9 & 1582,9 \\
+Selection Sort      &  420,4 &  426,9 &  507,2 \\
+Quick Sort          &    6,6 &    8,7 &  215,7 \\
+\textbf{Merge Sort} & \textbf{2,9} & \textbf{2,1} & \textbf{1,4} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A Figura~\ref{fig:tempo} ilustra a evolução do tempo em função de $N$ em
+escala log-log, revelando a separação clara entre as duas famílias de
+algoritmos: $O(n^{2})$ e $O(n \log n)$.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{fig1_tempo_vs_n.png}
+  \caption{Tempo médio (ms) $\times$ $N$ --- escala log-log,
+           entrada aleatória, lista dinâmica.}
+  \label{fig:tempo}
+\end{figure}
+
+A Figura~\ref{fig:comp} mostra as comparações médias registradas pelo
+contador implementado em cada algoritmo. \textit{Quick Sort} e \textit{Merge Sort}
+realizam significativamente menos comparações que os algoritmos $O(n^{2})$
+para $N \geq 1{.}000$~\cite{sedgewick2011}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{fig2_comparacoes.png}
+  \caption{Comparações médias $\times$ $N$ (entrada aleatória,
+           medidas pelo contador de comparações).}
+  \label{fig:comp}
+\end{figure}
+
+O heatmap da Figura~\ref{fig:heat} oferece visão integrada de todos os
+cenários para $N = 10{.}000$. O \textit{Merge Sort} aparece consistentemente
+como o mais eficiente; o \textit{Quick Sort} degrada expressivamente na
+entrada inversamente ordenada ($215{,}7$~ms) \textbf{apenas na lista dinâmica},
+conforme discutido na Seção~\ref{sec:disc}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{fig3_heatmap.png}
+  \caption{Heatmap de tempo (ms) para $N = 10{.}000$, lista dinâmica.
+           Verde~=~rápido; vermelho~=~lento.}
+  \label{fig:heat}
+\end{figure}
+
+A Figura~\ref{fig:qvsm} compara \textit{Quick Sort} e \textit{Merge Sort}
+nas \textbf{duas estruturas} para $N = 10{.}000$, evidenciando o impacto
+da estrutura no comportamento do \textit{Quick Sort} no caso inversamente
+ordenado.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{fig4_quick_vs_merge.png}
+  \caption{Quick Sort vs.\ Merge Sort nas duas estruturas --- $N = 10{.}000$.}
+  \label{fig:qvsm}
+\end{figure}
+
+\subsection{Impacto da Estrutura de Dados}
+
+A Figura~\ref{fig:estruturas} compara os tempos entre as duas estruturas
+para $N = 10{.}000$ com entrada aleatória.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{fig5_estruturas.png}
+  \caption{Tempo médio (ms) por algoritmo e estrutura ---
+           $N = 10{.}000$, entrada aleatória.}
+  \label{fig:estruturas}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{fig6_ganho.png}
+  \caption{Ganho (\%) da lista estática \textit{em relação à dinâmica}.
+           Valores positivos indicam que a estática foi mais rápida.}
+  \label{fig:ganho}
+\end{figure}
+
+Para $N = 10{.}000$, a lista estática apresentou ganhos expressivos
+\textit{em relação à dinâmica} nos algoritmos $O(n^{2})$:
+\textit{Bubble Sort} ($+68{,}8\%$), \textit{Insertion Sort} ($+89{,}0\%$)
+e \textit{Selection Sort} ($+43{,}9\%$). Esse comportamento decorre do fato
+de a lista estática operar sobre um vetor contíguo em memória, favorecendo
+a localidade de cache e eliminando o overhead de alocação dinâmica~\cite{preiss1998}.
+
+O \textit{Merge Sort} foi \textbf{22,6\% mais lento na lista estática
+em relação à dinâmica}. Na lista dinâmica o algoritmo opera diretamente
+sobre os nós; na estática, opera sobre um vetor auxiliar e o custo de
+exportação é absorvido fora da medição, mas o algoritmo realiza alocações
+internas de buffers temporários durante a fusão que interagem diferentemente
+com o padrão de memória de cada estrutura.
+
+\section{Discussão}
+\label{sec:disc}
+
+O \textit{Selection Sort} exibiu comportamento uniforme em todos os cenários
+--- sempre $\Theta(n^{2}/2)$ comparações~\cite{knuth1998}, sem benefício de
+ordenação preexistente --- sendo a pior opção para qualquer cenário real.
+
+O \textit{Insertion Sort} é excelente para entradas parcialmente ordenadas
+($471{,}9$~ms), confirmando sua complexidade $O(n)$ no melhor caso~\cite{wirth1976}.
+Porém, na entrada inversamente ordenada atinge $1{.}582{,}9$~ms na lista
+dinâmica --- o maior tempo registrado em todos os experimentos.
+
+O \textit{Quick Sort} apresentou o melhor tempo na entrada aleatória
+($6{,}6$~ms, lista dinâmica), mas degrada para $215{,}7$~ms na entrada
+inversamente ordenada~\cite{sedgewick2011}. Curiosamente, na lista estática
+esse mesmo cenário resultou em apenas $6{,}1$~ms. A hipótese mais provável
+é que, ao operar sobre um vetor contíguo, o \textit{Quick Sort} beneficia-se
+da localidade de cache durante as partições recursivas, atenuando o efeito
+do pior caso do pivô fixo.
+
+O \textit{Merge Sort} foi o único a garantir $O(n \log n)$ em todos os
+cenários~\cite{cormen2022}, com tempos entre $1{,}4$~ms e $2{,}9$~ms para
+$N = 10{.}000$, independentemente do tipo de entrada e estrutura utilizada.
+
+\section{Conclusão}
+\label{sec:conc}
+
+Este trabalho analisou cinco algoritmos de ordenação aplicados a um banco
+de dados de alunos sobre lista encadeada dinâmica (duplamente encadeada,
+operando in-place nos nós) e estática (vetor pré-alocado de 12.000 slots,
+operando sobre vetor auxiliar). Os experimentos, com 100 repetições por
+cenário, confirmaram as complexidades teóricas e revelaram diferenças práticas
+de até \textbf{1.130 vezes} entre o melhor e o pior resultado ($1{,}4$~ms
+do Merge Sort vs.\ $1{.}582{,}9$~ms do Insertion Sort, ambos para $N = 10{.}000$).
+
+O \textit{Merge Sort} é o algoritmo ideal pela combinação de:
+(i)~complexidade $O(n \log n)$ garantida em todos os casos;
+(ii)~estabilidade, preservando a ordem relativa entre elementos iguais;
+(iii)~previsibilidade, com tempo praticamente constante para qualquer
+tipo de entrada.
+
+Quanto às estruturas, a lista estática demonstrou vantagem de até $+89\%$
+em relação à dinâmica para algoritmos $O(n^{2})$ com $N = 10{.}000$,
+devido à localidade de cache do vetor contíguo. Para o \textit{Merge Sort},
+a lista dinâmica foi ligeiramente superior, pois sua operação in-place
+nos nós evita a sobrecarga de buffers temporários de fusão sobre memória estática.
+
+\begin{thebibliography}{9}
+\small
+\bibitem{knuth1998}
+D.~E. Knuth, \textit{The Art of Computer Programming, Vol.~3: Sorting and
+Searching}, 2ª~ed. Addison-Wesley, 1998.
+
+\bibitem{cormen2022}
+T.~H. Cormen, C.~E. Leiserson, R.~L. Rivest e C.~Stein,
+\textit{Introduction to Algorithms}, 4ª~ed. MIT Press, 2022.
+
+\bibitem{sedgewick2011}
+R.~Sedgewick e K.~Wayne, \textit{Algorithms}, 4ª~ed. Addison-Wesley, 2011.
+
+\bibitem{ziviani2010}
+N.~Ziviani, \textit{Projeto de Algoritmos com Implementações em C e Java},
+3ª~ed. Cengage Learning, 2010.
+
+\bibitem{mcilroy1993}
+P.~M. McIlroy, ``Optimistic sorting and information theoretic complexity,''
+\textit{Proc. 4th ACM-SIAM SODA}, 1993, pp.~467--474.
+
+\bibitem{wirth1976}
+N.~Wirth, \textit{Algorithms + Data Structures = Programs}.
+Prentice-Hall, 1976.
+
+\bibitem{preiss1998}
+B.~R. Preiss, \textit{Data Structures and Algorithms with Object-Oriented
+Design Patterns in C++}. Wiley, 1998.
+
+\bibitem{biggar2008}
+P.~Biggar, N.~Nash, K.~Williams e D.~Gregg, ``An experimental study of
+sorting and branch prediction,'' \textit{ACM J. Experimental Algorithmics},
+vol.~12, 2008.
+\end{thebibliography}
+
+\end{multicols}
+\end{document}
