@@ -10,14 +10,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 /* ------------------------------------------------------------ *
  *  Utilitarios de tempo
  * ------------------------------------------------------------ */
 long long bench_now_ns(void) {
+#ifdef _WIN32
+    static LARGE_INTEGER freq;
+    static int initialized = 0;
+    LARGE_INTEGER counter;
+
+    if (!initialized) {
+        QueryPerformanceFrequency(&freq);
+        initialized = 1;
+    }
+    QueryPerformanceCounter(&counter);
+    return (long long)((counter.QuadPart * 1000000000LL) / freq.QuadPart);
+#else
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+#endif
 }
 
 const char *struct_name(StructID id) {
