@@ -69,7 +69,7 @@ static BenchResult run_dynamic(AlgoID algo, int n, InputType itype,
     dlist_init(&list);
 
     long long total_ns   = 0;
-    long      total_cmps = 0;
+    BenchCmpAcc total_cmps = 0;
 
     for (int run = 0; run < BENCH_RUNS; run++) {
         /* Gera dados novos a cada rodada */
@@ -87,7 +87,7 @@ static BenchResult run_dynamic(AlgoID algo, int n, InputType itype,
 
         long long elapsed = t1 - t0;
         total_ns   += elapsed;
-        total_cmps += cmps;
+        total_cmps += (BenchCmpAcc)cmps;
 
         if ((double)elapsed < res.min_time_ns) res.min_time_ns = (double)elapsed;
         if ((double)elapsed > res.max_time_ns) res.max_time_ns = (double)elapsed;
@@ -128,7 +128,7 @@ static BenchResult run_static(AlgoID algo, int n, InputType itype,
     if (!work) { free(slist); exit(EXIT_FAILURE); }
 
     long long total_ns   = 0;
-    long      total_cmps = 0;
+    BenchCmpAcc total_cmps = 0;
 
     for (int run = 0; run < BENCH_RUNS; run++) {
         Student *data = student_generate_array(n, itype);
@@ -150,7 +150,7 @@ static BenchResult run_static(AlgoID algo, int n, InputType itype,
 
         long long elapsed = t1 - t0;
         total_ns   += elapsed;
-        total_cmps += cmps;
+        total_cmps += (BenchCmpAcc)cmps;
 
         if ((double)elapsed < res.min_time_ns) res.min_time_ns = (double)elapsed;
         if ((double)elapsed > res.max_time_ns) res.max_time_ns = (double)elapsed;

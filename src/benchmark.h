@@ -16,6 +16,7 @@
 #include "dynamic_list.h"
 #include "static_list.h"
 #include <time.h>
+#include <stdint.h>
 
 /* Número de repetições por experimento */
 #define BENCH_RUNS 100
@@ -32,6 +33,12 @@ typedef enum {
 } StructID;
 
 const char *struct_name(StructID id);
+
+/*
+ * Tipo para acumular comparacoes no benchmark sem risco de overflow
+ * quando somamos varias execucoes (BENCH_RUNS).
+ */
+typedef int64_t BenchCmpAcc;
 
 /* ------------------------------------------------------------ *
  *  Resultado de um único experimento
