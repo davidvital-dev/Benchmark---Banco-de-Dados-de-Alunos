@@ -28,7 +28,9 @@ long long bench_now_ns(void) {
         initialized = 1;
     }
     QueryPerformanceCounter(&counter);
-    return (long long)((counter.QuadPart * 1000000000LL) / freq.QuadPart);
+    /* Evita overflow: divide antes de multiplicar, mais resto */
+    return (long long)(counter.QuadPart / freq.QuadPart) * 1000000000LL
+         + (long long)(counter.QuadPart % freq.QuadPart) * 1000000000LL / freq.QuadPart;
 #else
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
