@@ -10,14 +10,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 /* ------------------------------------------------------------ *
  *  Utilitarios de tempo
  * ------------------------------------------------------------ */
 long long bench_now_ns(void) {
+#ifdef _WIN32
+    static LARGE_INTEGER freq;
+    static int initialized = 0;
+    LARGE_INTEGER counter;
+
+    if (!initialized) {
+        QueryPerformanceFrequency(&freq);
+        initialized = 1;
+    }
+    QueryPerformanceCounter(&counter);
+    return (long long)((counter.QuadPart * 1000000000LL) / freq.QuadPart);
+#else
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+#endif
 }
 
 const char *struct_name(StructID id) {
@@ -69,7 +85,7 @@ static BenchResult run_dynamic(AlgoID algo, int n, InputType itype,
     dlist_init(&list);
 
     long long total_ns   = 0;
-    long      total_cmps = 0;
+    BenchCmpAcc total_cmps = 0;
 
     for (int run = 0; run < BENCH_RUNS; run++) {
         /* Gera dados novos a cada rodada */
@@ -87,7 +103,7 @@ static BenchResult run_dynamic(AlgoID algo, int n, InputType itype,
 
         long long elapsed = t1 - t0;
         total_ns   += elapsed;
-        total_cmps += cmps;
+        total_cmps += (BenchCmpAcc)cmps;
 
         if ((double)elapsed < res.min_time_ns) res.min_time_ns = (double)elapsed;
         if ((double)elapsed > res.max_time_ns) res.max_time_ns = (double)elapsed;
@@ -128,7 +144,7 @@ static BenchResult run_static(AlgoID algo, int n, InputType itype,
     if (!work) { free(slist); exit(EXIT_FAILURE); }
 
     long long total_ns   = 0;
-    long      total_cmps = 0;
+    BenchCmpAcc total_cmps = 0;
 
     for (int run = 0; run < BENCH_RUNS; run++) {
         Student *data = student_generate_array(n, itype);
@@ -150,7 +166,7 @@ static BenchResult run_static(AlgoID algo, int n, InputType itype,
 
         long long elapsed = t1 - t0;
         total_ns   += elapsed;
-        total_cmps += cmps;
+        total_cmps += (BenchCmpAcc)cmps;
 
         if ((double)elapsed < res.min_time_ns) res.min_time_ns = (double)elapsed;
         if ((double)elapsed > res.max_time_ns) res.max_time_ns = (double)elapsed;
