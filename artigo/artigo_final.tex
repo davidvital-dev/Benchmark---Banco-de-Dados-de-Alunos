@@ -12,7 +12,6 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-
 \usepackage{enumitem}
 
 \algrenewcommand\algorithmicwhile{\textbf{enquanto}}
@@ -48,7 +47,6 @@ Banco de Dados de Alunos: Uma Comparação Empírica em Listas Dinâmica e Está
 
 \maketitle
 
-% ── Abstract ──────────────────────────────────────────────────────────
 \begin{abstract}
 Este artigo apresenta a análise comparativa de cinco algoritmos clássicos de
 ordenação --- \textit{Bubble Sort}, \textit{Insertion Sort}, \textit{Selection Sort},
@@ -58,17 +56,16 @@ lista encadeada estática com pool pré-alocado. A avaliação considera três v
 ($N \in \{100, 1{.}000, 10{.}000\}$) e três tipos de entrada (aleatório, parcialmente
 ordenado e inversamente ordenado), com 100 repetições por experimento. Os resultados
 confirmam as complexidades teóricas e apontam o \textit{Merge Sort} como algoritmo
-ideal, com tempo entre $1{,}4$~ms e $2{,}9$~ms para $N = 10{.}000$ em qualquer
+ideal, com tempo entre $2{,}1$~ms e $4{,}2$~ms para $N = 10{.}000$ em qualquer
 cenário. A lista estática apresentou ganhos de até \textbf{89\%} sobre a dinâmica
-nos algoritmos $O(n^{2})$, enquanto o \textit{Merge Sort} foi mais eficiente
-na lista dinâmica por operar diretamente nos ponteiros sem alocação auxiliar.
+nos algoritmos $O(n^{2})$, enquanto ambas as estruturas apresentaram desempenho
+equivalente para o \textit{Merge Sort}.
 \end{abstract}
 
 \begin{IEEEkeywords}
 ordenação, algoritmos, estruturas de dados, lista encadeada, análise de desempenho, C
 \end{IEEEkeywords}
 
-% ── I. Introdução ─────────────────────────────────────────────────────
 \section{Introdução}
 \label{sec:intro}
 
@@ -90,7 +87,6 @@ O objetivo é identificar empiricamente o algoritmo mais adequado para
 ordenar esse banco por GPA, validando os resultados com análise teórica
 de complexidade~\cite{sedgewick2011}.
 
-% ── II. Implementação ─────────────────────────────────────────────────
 \section{Fundamentação Teórica e Implementação}
 \label{sec:impl}
 
@@ -121,9 +117,7 @@ operação~\cite{preiss1998}. A lista é \textbf{simplesmente encadeada}
 Para a ordenação, os dados são exportados para um vetor auxiliar via
 \texttt{slist\_to\_array()} e os algoritmos \texttt{arr\_*\_sort()} operam
 diretamente sobre esse vetor. O acesso contíguo em memória favorece a
-localidade de cache~\cite{preiss1998}. O vetor auxiliar \textbf{não é
-recarregado} na lista após a ordenação --- o experimento mede apenas
-o tempo do algoritmo sobre o vetor.
+localidade de cache~\cite{preiss1998}.
 
 \subsection{Algoritmos de Ordenação}
 
@@ -131,7 +125,7 @@ Todos os algoritmos recebem um comparador genérico (\texttt{CmpFunc},
 do tipo \texttt{int (*)(const Student*, const Student*)}). Os experimentos
 utilizam \texttt{student\_cmp\_gpa}, que compara pelo campo \texttt{gpa}
 em ordem crescente. Cada algoritmo mantém um contador de comparações
-(\texttt{long}), incrementado a cada chamada ao comparador.
+(\texttt{int64\_t}), incrementado a cada chamada ao comparador.
 
 A Tabela~\ref{tab:complexidade} resume as complexidades teóricas
 considerando as otimizações presentes no código~\cite{knuth1998}.
@@ -173,8 +167,8 @@ sem degradação para $O(n^{2})$ em entradas adversas como ocorre com
 o Quick Sort~\cite{sedgewick2011}.
 
 Além disso, o Merge Sort é \textbf{estável} (preserva a ordem relativa
-de alunos com mesmo GPA) e \textbf{previsível}: tempo entre $1{,}4$~ms
-e $2{,}9$~ms para $N = 10{.}000$ em qualquer cenário e estrutura.
+de alunos com mesmo GPA) e \textbf{previsível}: tempo entre $2{,}1$~ms
+e $4{,}2$~ms para $N = 10{.}000$ em qualquer tipo de entrada e estrutura.
 
 Na implementação sobre a lista dinâmica, o algoritmo divide a lista
 localizando o nó central via ponteiros lento/rápido (\texttt{dlist\_get\_middle})
@@ -234,17 +228,18 @@ implementado.
 \end{algorithmic}
 \end{algorithm}
 
-% ── III. Resultados ───────────────────────────────────────────────────
 \section{Metodologia Experimental e Resultados}
 \label{sec:resultados}
 
 \subsection{Metodologia}
 
 Os experimentos foram conduzidos com GCC (\texttt{-O2}). O tempo foi medido
-com \texttt{clock\_gettime(CLOCK\_MONO\-TONIC)}, com resolução em
+com \texttt{clock\_gettime(CLOCK\_MONO\-TONIC)} no Linux e
+\texttt{QueryPerformanceCounter} no Windows, ambos com resolução em
 nanossegundos, abrangendo \textbf{exclusivamente} a chamada ao algoritmo
 de ordenação. Cada experimento foi repetido 100 vezes e reporta-se a
-média aritmética dos tempos.
+média aritmética. O contador de comparações utiliza o tipo \texttt{int64\_t}
+para evitar overflow em entradas grandes.
 
 Para a lista dinâmica mede-se \texttt{dlist\_*\_sort()}; para a estática,
 mede-se \texttt{arr\_*\_sort()} sobre o vetor auxiliar exportado por
@@ -254,16 +249,16 @@ Os tipos de entrada foram:
 \begin{itemize}[leftmargin=*,itemsep=1pt]
   \item \textbf{Aleatório}: GPAs gerados com \texttt{rand()};
   \item \textbf{Parcialmente ordenado}: lista ordenada por GPA com
-        $\approx10\%$ dos elementos embaralhados (simula novos cadastros);
-  \item \textbf{Inversamente ordenado}: maior GPA primeiro (pior caso
-        para algoritmos sensíveis à entrada).
+        $\approx10\%$ dos elementos embaralhados;
+  \item \textbf{Inversamente ordenado}: maior GPA primeiro (pior caso).
 \end{itemize}
 
 \subsection{Resultados Empíricos}
 
 A Tabela~\ref{tab:res10k} apresenta os tempos médios para $N = 10{.}000$.
-A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
-(Insertion Sort invertido, $1{.}582{,}9$~ms) chega a \textbf{1.130 vezes}.
+A diferença entre o melhor resultado (Merge Sort dinâmica, $2{,}1$~ms) e
+o pior (Insertion Sort inversamente ordenado, $2{.}338{,}1$~ms) chega a
+\textbf{1.108 vezes}.
 
 \begin{table}[tbp]
 \caption{Tempo médio (ms) para $N = 10{.}000$}
@@ -276,20 +271,20 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
 \textbf{Algoritmo} & \textbf{Estrutura} & \textbf{Aleat.} & \textbf{Parc.} & \textbf{Inv.} \\
 \midrule
 \multirow{2}{*}{Bubble}
-  & Dinâmica  & 1059,8 & 947,9  & 917,3  \\
-  & Estática  & 330,4  & 148,9  & 364,5  \\
+  & Dinâmica  & 1195,4 & 1172,8 & 1779,2 \\
+  & Estática  & 544,6  & 258,1  & 512,4  \\
 \multirow{2}{*}{Insertion}
-  & Dinâmica  & 899,6  & 471,9  & 1582,9 \\
-  & Estática  & 98,7   & 23,5   & 230,1  \\
+  & Dinâmica  & 1452,2 & 860,9  & 2338,1 \\
+  & Estática  & 166,0  & 35,2   & 368,8  \\
 \multirow{2}{*}{Selection}
-  & Dinâmica  & 420,4  & 426,9  & 507,2  \\
-  & Estática  & 235,8  & 227,2  & 248,2  \\
+  & Dinâmica  & 589,0  & 419,8  & 379,1  \\
+  & Estática  & 266,5  & 329,6  & 227,2  \\
 \multirow{2}{*}{Quick}
-  & Dinâmica  & 6,6    & 8,7    & 215,7  \\
-  & Estática  & 6,0    & 7,1    & \textbf{6,1}    \\
+  & Dinâmica  & 6,7    & 8,0    & 159,8  \\
+  & Estática  & 5,8    & 5,9    & \textbf{5,5} \\
 \multirow{2}{*}{\textbf{Merge}}
-  & \textbf{Dinâmica}  & \textbf{2,9} & \textbf{2,1} & \textbf{1,4} \\
-  & Estática  & 3,6    & 3,4    & 2,9    \\
+  & \textbf{Dinâmica}  & \textbf{4,2} & \textbf{2,2} & \textbf{2,1} \\
+  & Estática  & 4,1    & 3,8    & 4,0    \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -325,7 +320,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
   \includegraphics[width=\columnwidth]{fig4_quick_vs_merge.png}
   \caption{Quick Sort vs.\ Merge Sort nas duas estruturas para
            $N = 10{.}000$. O Quick Sort na lista dinâmica degrada
-           $33\times$ no pior caso; o Merge Sort permanece estável.}
+           $24\times$ no pior caso; o Merge Sort permanece estável.}
   \label{fig:qvsm}
 \end{figure}
 
@@ -348,26 +343,25 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
 \end{figure}
 
 Para os algoritmos $O(n^{2})$ com $N = 10{.}000$, a lista estática foi
-significativamente mais rápida: Bubble Sort ($+68{,}8\%$), Insertion Sort
-($+89{,}0\%$) e Selection Sort ($+43{,}9\%$). Esses algoritmos operam sobre
+significativamente mais rápida: Bubble Sort ($+54{,}4\%$), Insertion Sort
+($+88{,}6\%$) e Selection Sort ($+54{,}8\%$). Esses algoritmos operam sobre
 o vetor auxiliar exportado de \texttt{slist\_to\_array()}, com acesso
 contíguo em memória que favorece o cache do processador~\cite{preiss1998}.
 
 O Quick Sort na lista estática manteve desempenho consistente em todos os
-cenários (máximo de $7{,}1$~ms), beneficiado pelas otimizações de
+cenários (máximo de $5{,}9$~ms), beneficiado pelas otimizações de
 mediana-de-três e fallback para Insertion Sort em subarrays de tamanho
 menor que 10. Na lista dinâmica, sem essas otimizações e com o último nó
-como pivot fixo, o algoritmo degradou para $215{,}7$~ms na entrada
-inversamente ordenada.
+como pivot fixo, o algoritmo degradou para $159{,}8$~ms na entrada
+inversamente ordenada --- $29\times$ mais lento que na lista estática.
 
-O Merge Sort foi \textbf{18,4\% mais rápido na lista dinâmica} em relação
-à estática. Na lista dinâmica o algoritmo reencadeia os ponteiros \texttt{next}
-diretamente entre nós sem alocar memória extra; na versão sobre array
-(\texttt{arr\_merge\_sort}), cada chamada à etapa de fusão (\texttt{merge})
-aloca dois buffers temporários \texttt{L} e \texttt{R} via \texttt{malloc},
-o que aumenta o custo em entradas grandes.
+O Merge Sort apresentou desempenho \textbf{equivalente nas duas estruturas},
+com diferença inferior a $4\%$ em todos os cenários ($4{,}2$~ms dinâmica
+vs.\ $4{,}1$~ms estática, no caso aleatório). Na lista dinâmica o algoritmo
+reencadeia ponteiros \texttt{next} sem alocação extra; na lista estática,
+a fusão aloca buffers temporários \texttt{L} e \texttt{R} via \texttt{malloc}.
+O impacto prático dessas diferenças é desprezível para este volume de dados.
 
-% ── IV. Discussão ─────────────────────────────────────────────────────
 \section{Discussão}
 \label{sec:disc}
 
@@ -376,41 +370,50 @@ todos os cenários --- sem qualquer benefício da ordenação preexistente ---
 confirmando ser a pior escolha para qualquer cenário real com $N$
 grande~\cite{knuth1998}.
 
-O \textit{Bubble Sort} e o \textit{Insertion Sort} demonstraram comportamento
-$O(n)$ no melhor caso: ambos encerram antecipadamente quando nenhuma
-troca (Bubble) ou deslocamento (Insertion) é necessário. O Insertion Sort
-destacou-se na entrada parcialmente ordenada ($23{,}5$~ms na estática para
-$N = 10{.}000$), mas atingiu o pior resultado absoluto na inversamente
-ordenada ($1{.}582{,}9$~ms na dinâmica)~\cite{wirth1976}.
+O \textit{Bubble Sort} confirmou seu melhor caso $O(n)$ para entradas
+já ordenadas graças à flag \texttt{swapped}. Porém, no pior caso (entrada
+inversamente ordenada) atingiu $1{.}779{,}2$~ms na lista dinâmica ---
+o segundo pior resultado geral.
 
-O \textit{Quick Sort} demonstrou a importância das otimizações de
-implementação: com mediana-de-três e fallback na versão sobre array,
-manteve-se abaixo de $7{,}1$~ms em todos os cenários; sem elas, na lista
-dinâmica, degradou $33\times$ no pior caso~\cite{sedgewick2011}.
+O \textit{Insertion Sort} é eficiente para entradas parcialmente ordenadas
+($35{,}2$~ms na estática), confirmando $O(n)$ no melhor caso~\cite{wirth1976}.
+Porém, na entrada inversamente ordenada atingiu $2{.}338{,}1$~ms na lista
+dinâmica --- o pior resultado absoluto de toda a bateria de experimentos.
+
+O \textit{Quick Sort} demonstrou a importância das otimizações: com
+mediana-de-três e fallback na versão sobre array, manteve-se abaixo de
+$5{,}9$~ms em todos os cenários na lista estática; na lista dinâmica,
+sem essas otimizações, degradou $24\times$ no pior caso~\cite{sedgewick2011}.
 
 O \textit{Merge Sort} foi o único a garantir $O(n \log n)$ em todos os
-cenários e estruturas, com variação máxima de $2{,}6\times$ entre o
-menor ($1{,}4$~ms) e o maior tempo ($3{,}6$~ms) para
-$N = 10{.}000$~\cite{cormen2022}.
+cenários e estruturas~\cite{cormen2022}, com variação máxima de $2\times$
+entre o menor ($2{,}1$~ms) e o maior tempo ($4{,}2$~ms) para
+$N = 10{.}000$.
 
-% ── V. Conclusão ──────────────────────────────────────────────────────
 \section{Conclusão}
 \label{sec:conc}
 
 Este trabalho avaliou cinco algoritmos de ordenação sobre duas estruturas
 em linguagem~C. Os experimentos confirmaram as complexidades teóricas e
-revelaram diferenças de até \textbf{1.130 vezes} entre o melhor e o pior
+revelaram diferenças de até \textbf{1.108 vezes} entre o melhor e o pior
 resultado para $N = 10{.}000$.
 
-O \textit{Merge Sort} aplicado sobre a lista dinâmica duplamente encadeada
-é o algoritmo ideal para este caso real pelos seguintes motivos:
+O \textit{Merge Sort} é o algoritmo ideal para este caso real pelos
+seguintes motivos:
 (i)~complexidade $O(n \log n)$ garantida em todos os casos, sem degradação
 em entradas adversas;
 (ii)~estabilidade, preservando a ordem relativa de alunos com mesmo GPA;
-(iii)~previsibilidade, com tempo entre $1{,}4$~ms e $2{,}9$~ms para
+(iii)~previsibilidade, com tempo entre $2{,}1$~ms e $4{,}2$~ms para
 $N = 10{.}000$ independentemente do tipo de entrada;
-(iv)~operação in-place nos ponteiros \texttt{next}, sem alocação de
-vetores auxiliares, tornando-o mais eficiente que a versão sobre array.
+(iv)~desempenho equivalente em ambas as estruturas, oferecendo flexibilidade
+de escolha sem penalidade de desempenho.
+
+Quanto às estruturas, a lista estática demonstrou vantagem expressiva para
+algoritmos $O(n^{2})$ (até $+89\%$) devido à localidade de cache.
+Para o Merge Sort, a diferença entre as estruturas é desprezível, tornando
+a lista dinâmica a escolha mais adequada para o caso real, pela sua
+capacidade ilimitada de crescimento e suporte natural a inserções e remoções
+frequentes.
 
 \begin{thebibliography}{9}
 \bibitem{knuth1998}
