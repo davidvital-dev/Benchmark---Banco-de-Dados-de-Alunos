@@ -12,7 +12,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{float}
+
 \usepackage{enumitem}
 
 \algrenewcommand\algorithmicwhile{\textbf{enquanto}}
@@ -136,7 +136,7 @@ em ordem crescente. Cada algoritmo mantém um contador de comparações
 A Tabela~\ref{tab:complexidade} resume as complexidades teóricas
 considerando as otimizações presentes no código~\cite{knuth1998}.
 
-\begin{table}[H]
+\begin{table}[tbp]
 \caption{Complexidade teórica dos algoritmos (com otimizações)}
 \label{tab:complexidade}
 \centering
@@ -183,7 +183,7 @@ sem alocação de vetores auxiliares. Os Algoritmos~\ref{alg:ms}
 e~\ref{alg:intercalar} apresentam o pseudocódigo fiel ao código
 implementado.
 
-\begin{algorithm}[H]
+\begin{algorithm}[tbp]
 \caption{\textsc{MergeSort} em lista dinâmica}
 \label{alg:ms}
 \begin{algorithmic}[1]
@@ -215,7 +215,7 @@ implementado.
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[H]
+\begin{algorithm}[tbp]
 \caption{\textsc{Intercalar} duas sublistas ordenadas}
 \label{alg:intercalar}
 \begin{algorithmic}[1]
@@ -265,7 +265,7 @@ A Tabela~\ref{tab:res10k} apresenta os tempos médios para $N = 10{.}000$.
 A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
 (Insertion Sort invertido, $1{.}582{,}9$~ms) chega a \textbf{1.130 vezes}.
 
-\begin{table}[H]
+\begin{table}[tbp]
 \caption{Tempo médio (ms) para $N = 10{.}000$}
 \label{tab:res10k}
 \centering
@@ -294,7 +294,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
 \end{tabular}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{fig1_tempo_vs_n.png}
   \caption{Tempo médio (ms) $\times$ $N$ em escala log-log, entrada
@@ -303,7 +303,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
   \label{fig:tempo}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{fig2_comparacoes.png}
   \caption{Comparações médias $\times$ $N$ (entrada aleatória). O
@@ -312,7 +312,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
   \label{fig:comp}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{fig3_heatmap.png}
   \caption{Heatmap de tempo (ms) para $N = 10{.}000$, lista dinâmica.
@@ -320,7 +320,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
   \label{fig:heat}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{fig4_quick_vs_merge.png}
   \caption{Quick Sort vs.\ Merge Sort nas duas estruturas para
@@ -331,7 +331,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
 
 \subsection{Impacto da Estrutura de Dados}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{fig5_estruturas.png}
   \caption{Tempo médio (ms) por algoritmo e estrutura,
@@ -339,7 +339,7 @@ A diferença entre o melhor (Merge Sort, $1{,}4$~ms) e o pior resultado
   \label{fig:estruturas}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{fig6_ganho.png}
   \caption{Ganho (\%) da lista estática em relação à dinâmica.
